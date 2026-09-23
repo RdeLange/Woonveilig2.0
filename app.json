@@ -33,21 +33,6 @@
     "name": "WoonVeilig Homey Community",
     "email": "support@example.invalid"
   },
-  "settings": [
-    {
-      "id": "legacy_mode",
-      "type": "checkbox",
-      "label": {
-        "en": "Legacy WV-1716 mode",
-        "nl": "Legacy WV-1716 modus"
-      },
-      "hint": {
-        "en": "Enable this if you have an older WoonVeilig WV-1716 system. Note: Accessory/sensor support is not available for legacy systems.",
-        "nl": "Schakel dit in als u een ouder WoonVeilig WV-1716 systeem hebt. Opmerking: Accessoire/sensor ondersteuning is niet beschikbaar voor legacy systemen."
-      },
-      "value": false
-    }
-  ],
   "capabilities": {
     "alarm_mode": {
       "type": "enum",
