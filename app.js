@@ -5,6 +5,7 @@ const http = require('http');
 const https = require('https');
 const HomeyPush = require('./lib/homey-push');
 const WoonveiligClient = require('./lib/woonveilig-client');
+const WoonveiligClientLegacy = require('./lib/woonveilig-client-legacy');
 const { alarmPairingDevice, fingerprint, pairingDevices, warningFor } = require('./lib/accessories');
 
 const DEFAULT_SETTINGS = {
@@ -14,6 +15,7 @@ const DEFAULT_SETTINGS = {
   area: '1',
   poll_seconds: 20,
   dry_run: false,
+  legacy_mode: false,
   notify_on_alarm: true,
   repeat_alarm_notifications: true,
   repeat_alarm_seconds: 30,
@@ -108,6 +110,7 @@ class WoonveiligLocalApp extends Homey.App {
       area: String(this.homey.settings.get('area') || DEFAULT_SETTINGS.area),
       pollSeconds: Number(this.homey.settings.get('poll_seconds') || DEFAULT_SETTINGS.poll_seconds),
       dryRun: boolSetting(this.homey.settings.get('dry_run'), DEFAULT_SETTINGS.dry_run),
+      legacyMode: boolSetting(this.homey.settings.get('legacy_mode'), DEFAULT_SETTINGS.legacy_mode),
       notifyOnAlarm: boolSetting(this.homey.settings.get('notify_on_alarm'), DEFAULT_SETTINGS.notify_on_alarm),
       repeatAlarmNotifications: boolSetting(this.homey.settings.get('repeat_alarm_notifications'), DEFAULT_SETTINGS.repeat_alarm_notifications),
       repeatAlarmSeconds: Number(this.homey.settings.get('repeat_alarm_seconds') || DEFAULT_SETTINGS.repeat_alarm_seconds),
@@ -473,12 +476,19 @@ class WoonveiligLocalApp extends Homey.App {
       throw new Error('Vul eerst WoonVeilig gebruikersnaam en wachtwoord in bij de app-instellingen.');
     }
 
-    return new WoonveiligClient({
+    const clientConfig = {
       url: settings.url,
       username: settings.username,
       password: settings.password,
       area: settings.area,
-    });
+    };
+
+    if (settings.legacyMode) {
+      this.log('Using legacy WV-1716 client');
+      return new WoonveiligClientLegacy(clientConfig);
+    }
+
+    return new WoonveiligClient(clientConfig);
   }
 
   getFlowCard(method, id) {
