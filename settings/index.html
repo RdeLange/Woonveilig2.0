@@ -321,6 +321,15 @@
       </section>
 
       <section class="card">
+        <h2>Systeemtype</h2>
+        <label class="check">
+          <input id="legacy_mode" type="checkbox">
+          <span>Legacy WV-1716 modus</span>
+        </label>
+        <p>Schakel dit in als u een ouder WoonVeilig WV-1716 systeem hebt. Let op: Accessoire/sensor ondersteuning is niet beschikbaar voor legacy systemen.</p>
+      </section>
+
+      <section class="card">
         <h2>Inloggen</h2>
 
         <label for="url">Adres</label>
@@ -472,6 +481,7 @@
           'area',
           'poll_seconds',
           'dry_run',
+          'legacy_mode',
           'notify_on_alarm',
           'repeat_alarm_notifications',
           'repeat_alarm_seconds',
@@ -861,6 +871,7 @@
           area: '1',
           poll_seconds: '20',
           dry_run: false,
+          legacy_mode: false,
           notify_on_alarm: true,
           repeat_alarm_notifications: true,
           repeat_alarm_seconds: '30',
