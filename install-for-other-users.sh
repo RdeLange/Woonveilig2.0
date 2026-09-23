@@ -84,9 +84,15 @@ else
     echo -e "${GREEN}✓ Modern mode geselecteerd${NC}"
 fi
 
+# Uninstall old version if it exists
+echo ""
+echo -e "${CYAN}📱 Oude versie verwijderen (indien aanwezig)...${NC}"
+homey app uninstall 2>/dev/null || true
+sleep 2
+
 # Deploy app
 echo ""
-echo -e "${CYAN}📱 App installeren op Homey...${NC}"
+echo -e "${CYAN}📱 Nieuwe versie installeren op Homey...${NC}"
 npm run run
 
 # Set configuration via Homey API

@@ -68,6 +68,11 @@ Write-Host 'Syntax controleren...' -ForegroundColor Yellow
 npm run check
 
 Write-Host ''
+Write-Host 'Oude versie verwijderen (indien aanwezig)...' -ForegroundColor Yellow
+homey app uninstall 2>$null
+Start-Sleep -Seconds 2
+
+Write-Host ''
 Write-Host 'App installeren. Kies jouw eigen Homey als daarom gevraagd wordt.' -ForegroundColor Cyan
 homey app install
 
