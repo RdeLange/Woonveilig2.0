@@ -4,9 +4,13 @@
   "description": "Homey Pro app voor lokale WoonVeilig/Egardia status en accessoires.",
   "main": "app.js",
   "scripts": {
-    "check": "node --check app.js && node --check lib/woonveilig-client.js && node --check lib/accessories.js && node --check lib/homey-push.js && node --check drivers/alarm/driver.js && node --check drivers/alarm/device.js && node test/button-mapping.test.js && node test/accessories.test.js",
+    "check": "node --check app.js && node --check lib/woonveilig-client.js && node --check lib/woonveilig-client-legacy.js && node --check lib/accessories.js && node --check lib/homey-push.js && node --check drivers/alarm/driver.js && node --check drivers/alarm/device.js && echo '✓ All files have valid syntax'",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "node test/accessories.test.js && node test/button-mapping.test.js && node test/woonveilig-client-legacy.test.js",
+    "test:integration": "node test/integration.test.js",
     "test:buttons": "node test/button-mapping.test.js",
     "test:accessories": "node test/accessories.test.js",
+    "test:legacy": "node test/woonveilig-client-legacy.test.js",
     "validate": "homey app validate",
     "run": "homey app run"
   },
