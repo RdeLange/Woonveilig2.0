@@ -1,0 +1,881 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+    <style>
+      :root {
+        --green: #1E8B57;
+        --green-dark: #176c44;
+        --bg: #f4f6f5;
+        --card: #fff;
+        --text: #1c2420;
+        --muted: #5d6b64;
+        --line: #e4ebe7;
+        --ok: #1E8B57;
+        --bad: #c0392b;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      body {
+        padding: 0 0 24px;
+        font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.4;
+      }
+
+      .hero {
+        background: linear-gradient(160deg, #1E8B57 0%, #145c3a 100%);
+        color: #fff;
+        padding: 14px 16px;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .hero p {
+        margin: 2px 0 0;
+        opacity: 0.88;
+        font-size: 13px;
+      }
+
+      .wrap {
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: 14px;
+        padding: 14px;
+        min-width: 0;
+      }
+
+      .card h2 {
+        margin: 0 0 6px;
+        font-size: 15px;
+      }
+
+      .card p {
+        margin: 0 0 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        font-size: 12px;
+        margin-top: 10px;
+      }
+
+      .row label { margin-top: 10px; }
+
+      input[type="text"],
+      input[type="password"],
+      input[type="number"],
+      textarea {
+        margin-top: 5px;
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        font-size: 16px;
+        background: #fbfcfb;
+      }
+
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 12px;
+      }
+
+      input:focus {
+        outline: 2px solid rgba(30, 139, 87, 0.35);
+        border-color: var(--green);
+      }
+
+      .check {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        margin-top: 12px;
+        font-size: 13px;
+      }
+
+      .check input { margin-top: 2px; flex: 0 0 auto; }
+
+      button {
+        appearance: none;
+        border: 0;
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        width: 100%;
+      }
+
+      .primary {
+        margin-top: 14px;
+        background: var(--green);
+        color: #fff;
+      }
+
+      .ghost {
+        margin-top: 6px;
+        background: #edf5f0;
+        color: var(--green-dark);
+      }
+
+      .danger {
+        margin-top: 6px;
+        background: #fdecea;
+        color: var(--bad);
+      }
+
+      #message,
+      #last_status,
+      #accessory_message {
+        margin: 8px 0 0;
+        font-size: 13px;
+        color: var(--green-dark);
+        overflow-wrap: anywhere;
+      }
+
+      details {
+        margin: 0;
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 15px;
+        list-style: none;
+      }
+
+      summary::-webkit-details-marker { display: none; }
+
+      summary::after {
+        content: " ▾";
+        color: var(--muted);
+        font-weight: 400;
+      }
+
+      ol {
+        margin: 8px 0 0;
+        padding-left: 18px;
+      }
+
+      li {
+        margin: 6px 0;
+        font-size: 13px;
+      }
+
+      .item {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+        min-width: 0;
+      }
+
+      .item:last-child { border-bottom: 0; }
+
+      .item-name {
+        font-weight: 700;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+      }
+
+      .item-meta {
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+
+      .item-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .ok { background: #e7f6ee; color: var(--ok); }
+      .bad { background: #fdecea; color: var(--bad); }
+
+      .history-entry {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .history-entry:last-child { border-bottom: 0; }
+
+      .history-time {
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .history-message {
+        margin-top: 2px;
+        font-size: 13px;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .metric {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+        background: #fbfcfb;
+      }
+
+      .metric-label {
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .metric-value {
+        margin-top: 2px;
+        font-size: 18px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+      }
+
+      .dashboard-list {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+
+      .user-list {
+        display: grid;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .user-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+        background: #fbfcfb;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .user-row input { flex: 0 0 auto; }
+    </style>
+  </head>
+  <body>
+    <div class="hero">
+      <h1>WoonVeilig Lokaal</h1>
+      <p>Alarmcentrale via huis-wifi</p>
+    </div>
+
+    <div class="wrap">
+      <section class="card">
+        <h2>Statusdashboard</h2>
+        <div id="dashboard">
+          <p>Dashboard laden...</p>
+        </div>
+        <button class="ghost" id="refresh_dashboard" type="button">Dashboard vernieuwen</button>
+      </section>
+
+      <section class="card">
+        <h2>Inloggen</h2>
+
+        <label for="url">Adres</label>
+        <input id="url" type="text" inputmode="url" placeholder="http://192.168.1.100">
+
+        <label for="username">Gebruikersnaam</label>
+        <input id="username" type="text" autocomplete="username">
+
+        <label for="password">Wachtwoord</label>
+        <input id="password" type="password" autocomplete="current-password">
+
+        <div class="row">
+          <div>
+            <label for="area">Gebied</label>
+            <input id="area" type="number" min="1" max="2" step="1">
+          </div>
+          <div>
+            <label for="poll_seconds">Verversen (sec)</label>
+            <input id="poll_seconds" type="number" min="10" step="1">
+          </div>
+        </div>
+
+        <label class="check">
+          <input id="dry_run" type="checkbox">
+          <span>Testmodus: niet écht schakelen</span>
+        </label>
+
+        <button class="primary" id="save" type="button">Opslaan</button>
+        <button class="ghost" id="test_connection" type="button">Test verbinding</button>
+        <button class="ghost" id="export_settings" type="button">Export instellingen</button>
+        <textarea id="settings_export" readonly hidden></textarea>
+        <p id="message"></p>
+        <p id="last_status"></p>
+      </section>
+
+      <section class="card">
+        <h2>Meldingen op je telefoon</h2>
+        <p>Tik op <strong>Test melding</strong>. Die moet als push op je telefoon komen, ook als Homey op slot staat. Meldingen van de Homey-app moeten op je telefoon aan staan.</p>
+
+        <label>Push naar gebruikers</label>
+        <div id="push_users" class="user-list">
+          <p>Gebruikers laden...</p>
+        </div>
+        <button class="ghost" id="refresh_push_users" type="button">Gebruikers vernieuwen</button>
+        <button class="primary" id="save_push_users" type="button">Pushgebruikers opslaan</button>
+
+        <label class="check">
+          <input id="notify_on_alarm" type="checkbox">
+          <span>Melding als het alarm afgaat</span>
+        </label>
+
+        <label class="check">
+          <input id="repeat_alarm_notifications" type="checkbox">
+          <span>Blijven melden zolang het alarm afgaat</span>
+        </label>
+
+        <label class="check">
+          <input id="notify_on_accessory_problem" type="checkbox">
+          <span>Melding bij storing (batterij, sabotage, defect)</span>
+        </label>
+
+        <label for="accessory_problem_silence_hours">Storing opnieuw melden na (uren)</label>
+        <input id="accessory_problem_silence_hours" type="number" min="0" max="168" step="1">
+
+        <label class="check">
+          <input id="notify_on_new_accessory" type="checkbox">
+          <span>Melding bij een nieuw onderdeel</span>
+        </label>
+
+        <label class="check">
+          <input id="notify_on_unreachable" type="checkbox">
+          <span>Melding als WoonVeilig niet bereikbaar is</span>
+        </label>
+
+        <label class="check">
+          <input id="check_open_contacts_before_arm" type="checkbox">
+          <span>Controleer open deuren/ramen voor inschakelen</span>
+        </label>
+
+        <label class="check">
+          <input id="block_arm_with_open_contacts" type="checkbox">
+          <span>Inschakelen blokkeren als deur/raam open staat</span>
+        </label>
+
+        <div class="row">
+          <div>
+            <label for="repeat_alarm_seconds">Herhaal na (sec)</label>
+            <input id="repeat_alarm_seconds" type="number" min="10" step="5">
+          </div>
+          <div>
+            <label for="repeat_alarm_max">Max meldingen</label>
+            <input id="repeat_alarm_max" type="number" min="1" max="30" step="1">
+          </div>
+        </div>
+
+        <button class="ghost" id="test_push" type="button">Test melding</button>
+        <button class="danger" id="acknowledge_alarm" type="button">Alarmmelding bevestigen</button>
+        <button class="primary" id="save_notifications" type="button">Meldingen opslaan</button>
+
+        <details>
+          <summary>Extra: externe webhook</summary>
+          <label class="check">
+            <input id="call_webhook_on_alarm" type="checkbox">
+            <span>Externe alarm-webhook aanroepen</span>
+          </label>
+          <label for="call_webhook_url">Alarm-webhook URL</label>
+          <input id="call_webhook_url" type="text" inputmode="url" placeholder="https://voorbeeld.nl/alarm">
+        </details>
+      </section>
+
+      <section class="card">
+        <details>
+          <summary>Apparaten in Homey zetten</summary>
+          <p>Niet zoeken op WoonVeilig, dat is de betaalde winkel.</p>
+          <ol>
+            <li>Onderin: <strong>Apparaten</strong></li>
+            <li>Plusje → <strong>Nieuw apparaat</strong></li>
+            <li>Niet zoeken, naar beneden scrollen</li>
+            <li>Tik op <strong>WoonVeilig</strong></li>
+            <li>Vink alles aan → <strong>Volgende</strong></li>
+          </ol>
+        </details>
+      </section>
+
+      <section class="card">
+        <h2>Alarmgeschiedenis</h2>
+        <p>Laatste alarmen, storingen, nieuwe onderdelen en bevestigingen.</p>
+        <div class="row">
+          <button class="ghost" id="refresh_history" type="button">Geschiedenis vernieuwen</button>
+          <button class="danger" id="clear_history" type="button">Geschiedenis wissen</button>
+        </div>
+        <div id="alarm_history"></div>
+      </section>
+
+      <section class="card">
+        <h2>Onderdelen</h2>
+        <button class="ghost" id="refresh_accessories" type="button">Lijst vernieuwen</button>
+        <p id="accessory_message"></p>
+        <div id="accessory_list"></div>
+      </section>
+    </div>
+
+    <script>
+      function onHomeyReady(Homey) {
+        const fields = [
+          'url',
+          'username',
+          'password',
+          'area',
+          'poll_seconds',
+          'dry_run',
+          'notify_on_alarm',
+          'repeat_alarm_notifications',
+          'repeat_alarm_seconds',
+          'repeat_alarm_max',
+          'notify_on_new_accessory',
+          'notify_on_accessory_problem',
+          'accessory_problem_silence_hours',
+          'check_open_contacts_before_arm',
+          'block_arm_with_open_contacts',
+          'notify_on_unreachable',
+          'call_webhook_on_alarm',
+          'call_webhook_url',
+        ];
+
+        Promise.all(fields.map((field) => Homey.get(field)))
+          .then((values) => {
+            fields.forEach((field, index) => {
+              const input = document.getElementById(field);
+              if (input.type === 'checkbox') {
+                input.checked = boolValue(values[index], defaultValue(field));
+              } else {
+                input.value = values[index] || defaultValue(field);
+              }
+            });
+          })
+          .finally(() => {
+            Homey.ready();
+            loadDashboard(Homey);
+            loadLastStatus(Homey);
+            loadPushUsers(Homey);
+            loadAccessories(Homey);
+            loadHistory(Homey);
+          });
+
+        const save = async () => {
+          document.getElementById('message').textContent = 'Opslaan...';
+          for (const field of fields) {
+            const input = document.getElementById(field);
+            await Homey.set(field, input.type === 'checkbox' ? input.checked : input.value);
+          }
+          document.getElementById('message').textContent = 'Opgeslagen.';
+          loadDashboard(Homey);
+          loadLastStatus(Homey);
+          loadAccessories(Homey);
+        };
+
+        document.getElementById('save').addEventListener('click', save);
+        document.getElementById('save_notifications').addEventListener('click', save);
+
+        document.getElementById('refresh_accessories').addEventListener('click', () => loadAccessories(Homey));
+        document.getElementById('refresh_dashboard').addEventListener('click', () => loadDashboard(Homey));
+        document.getElementById('refresh_push_users').addEventListener('click', () => loadPushUsers(Homey));
+        document.getElementById('save_push_users').addEventListener('click', () => savePushUsers(Homey));
+        document.getElementById('refresh_history').addEventListener('click', () => loadHistory(Homey));
+        document.getElementById('clear_history').addEventListener('click', () => clearHistory(Homey));
+        document.getElementById('acknowledge_alarm').addEventListener('click', () => acknowledgeAlarm(Homey));
+        document.getElementById('test_connection').addEventListener('click', () => testConnection(Homey));
+        document.getElementById('test_push').addEventListener('click', () => testPush(Homey));
+        document.getElementById('export_settings').addEventListener('click', () => exportSettings(Homey));
+      }
+
+      function loadLastStatus(Homey) {
+        const status = document.getElementById('last_status');
+        Promise.all([Homey.get('last_error'), Homey.get('last_ok'), Homey.get('last_push_status')])
+          .then(([lastError, lastOk, lastPushStatus]) => {
+            if (lastError) {
+              status.textContent = lastError;
+              return;
+            }
+
+            if (lastOk) {
+              const pushText = lastPushStatus ? ` ${lastPushStatus}` : '';
+              status.textContent = `Laatste succesvolle uitlezing: ${new Date(lastOk).toLocaleString()}.${pushText}`;
+              return;
+            }
+
+            status.textContent = lastPushStatus || '';
+          })
+          .catch(() => {
+            status.textContent = '';
+          });
+      }
+
+      async function loadDashboard(Homey) {
+        const target = document.getElementById('dashboard');
+        try {
+          const data = await callApi(Homey, 'GET', '/dashboard');
+          target.innerHTML = dashboardHtml(data);
+        } catch (error) {
+          target.innerHTML = '<p>Dashboard kon niet worden geladen.</p>';
+        }
+      }
+
+      async function loadPushUsers(Homey) {
+        const target = document.getElementById('push_users');
+        target.innerHTML = '<p>Gebruikers laden...</p>';
+        try {
+          const users = await callApi(Homey, 'GET', '/push-users');
+          if (!Array.isArray(users) || !users.length) {
+            target.innerHTML = '<p>Geen Homey-gebruikers gevonden.</p>';
+            return;
+          }
+          target.innerHTML = users.map((user) => `
+            <label class="user-row">
+              <input type="checkbox" data-user-id="${escapeHtml(user.id)}" ${user.selected ? 'checked' : ''}>
+              <span>${escapeHtml(user.name || user.id)}</span>
+            </label>
+          `).join('');
+        } catch (error) {
+          target.innerHTML = '<p>Gebruikers konden niet worden geladen.</p>';
+        }
+      }
+
+      async function savePushUsers(Homey) {
+        const message = document.getElementById('message');
+        const ids = Array.from(document.querySelectorAll('#push_users input[type="checkbox"]:checked'))
+          .map((input) => input.getAttribute('data-user-id'))
+          .filter(Boolean);
+        message.textContent = 'Pushgebruikers opslaan...';
+        try {
+          await Homey.set('push_user_ids', JSON.stringify(ids));
+          message.textContent = ids.length
+            ? `Pushgebruikers opgeslagen: ${ids.length}.`
+            : 'Geen gebruikers aangevinkt; de app stuurt naar alle gevonden Homey-gebruikers.';
+          loadPushUsers(Homey);
+        } catch (error) {
+          message.textContent = `Pushgebruikers opslaan mislukt: ${error.message || error}`;
+        }
+      }
+
+      function loadAccessories(Homey) {
+        const message = document.getElementById('accessory_message');
+        const list = document.getElementById('accessory_list');
+        message.textContent = 'Bezig met ophalen...';
+
+        Homey.get('accessories_overview')
+          .then((stored) => {
+            const accessories = parseAccessories(stored);
+            if (accessories.length) {
+              message.textContent = `${accessories.length} onderdelen.`;
+              list.innerHTML = accessoryCards(accessories);
+            } else {
+              message.textContent = 'Nog geen lijst. Sla eerst de inloggegevens op.';
+              list.innerHTML = '';
+            }
+          })
+          .catch(() => {
+            message.textContent = 'De lijst kon niet worden geladen.';
+          });
+
+        try {
+          fetchAccessoriesLive(Homey).then((accessories) => {
+            if (!accessories || !accessories.length) return;
+            message.textContent = `${accessories.length} onderdelen.`;
+            list.innerHTML = accessoryCards(accessories);
+          }).catch(() => {});
+        } catch (error) {}
+      }
+
+      function fetchAccessoriesLive(Homey) {
+        if (typeof Homey.api !== 'function') {
+          return Promise.resolve([]);
+        }
+
+        const result = Homey.api('GET', '/accessories', null);
+        if (result && typeof result.then === 'function') return result;
+
+        return new Promise((resolve, reject) => {
+          Homey.api('GET', '/accessories', null, (err, data) => {
+            if (err) reject(err);
+            else resolve(data);
+          });
+        });
+      }
+
+      async function testConnection(Homey) {
+        const message = document.getElementById('message');
+        message.textContent = 'Verbinding testen...';
+
+        try {
+          const result = await callApi(Homey, 'GET', '/test-connection');
+          message.textContent = `Verbinding OK. Status: ${result.status}. Onderdelen: ${result.accessories}.`;
+          loadLastStatus(Homey);
+          loadAccessories(Homey);
+          loadDashboard(Homey);
+        } catch (error) {
+          message.textContent = `Verbinding mislukt: ${error.message || error}`;
+        }
+      }
+
+      async function testPush(Homey) {
+        const message = document.getElementById('message');
+        message.textContent = 'Pushmelding testen...';
+
+        try {
+          const result = await callApi(Homey, 'POST', '/test-push');
+          message.textContent = result.hint || 'Melding verstuurd. Er is geen Flow nodig.';
+          loadLastStatus(Homey);
+          loadHistory(Homey);
+        } catch (error) {
+          message.textContent = `Pushmelding mislukt: ${error.message || error}`;
+        }
+      }
+
+      async function acknowledgeAlarm(Homey) {
+        const message = document.getElementById('message');
+        message.textContent = 'Alarmmelding bevestigen...';
+
+        try {
+          await callApi(Homey, 'POST', '/acknowledge-alarm');
+          message.textContent = 'Alarmmelding bevestigd. Herhaalmeldingen zijn gestopt tot een nieuw alarm.';
+          loadDashboard(Homey);
+          loadHistory(Homey);
+        } catch (error) {
+          message.textContent = `Bevestigen mislukt: ${error.message || error}`;
+        }
+      }
+
+      async function loadHistory(Homey) {
+        const target = document.getElementById('alarm_history');
+        try {
+          const history = await callApi(Homey, 'GET', '/alarm-history');
+          target.innerHTML = historyCards(history);
+        } catch (error) {
+          target.innerHTML = '<p>Geschiedenis kon niet worden geladen.</p>';
+        }
+      }
+
+      async function clearHistory(Homey) {
+        const target = document.getElementById('alarm_history');
+        target.innerHTML = '<p>Geschiedenis wissen...</p>';
+        try {
+          await callApi(Homey, 'POST', '/alarm-history/clear');
+          target.innerHTML = '<p>Geen geschiedenis.</p>';
+          loadDashboard(Homey);
+        } catch (error) {
+          target.innerHTML = '<p>Geschiedenis wissen mislukt.</p>';
+        }
+      }
+
+      async function exportSettings(Homey) {
+        const message = document.getElementById('message');
+        const output = document.getElementById('settings_export');
+        message.textContent = 'Instellingen exporteren...';
+
+        try {
+          const settings = await callApi(Homey, 'GET', '/settings-export');
+          output.hidden = false;
+          output.value = JSON.stringify(settings, null, 2);
+          message.textContent = 'Export klaar. Wachtwoord zit hier niet in.';
+        } catch (error) {
+          message.textContent = `Export mislukt: ${error.message || error}`;
+        }
+      }
+
+      function callApi(Homey, method, path) {
+        if (typeof Homey.api !== 'function') {
+          return Promise.reject(new Error('Homey API niet beschikbaar in dit scherm.'));
+        }
+
+        const result = Homey.api(method, path, null);
+        if (result && typeof result.then === 'function') return result;
+
+        return new Promise((resolve, reject) => {
+          Homey.api(method, path, null, (err, data) => {
+            if (err) reject(err);
+            else resolve(data);
+          });
+        });
+      }
+
+      function parseAccessories(value) {
+        if (!value) return [];
+        if (Array.isArray(value)) return value;
+        try {
+          const parsed = JSON.parse(value);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function pill(ok, good, bad) {
+        return `<span class="pill ${ok ? 'ok' : 'bad'}">${ok ? good : bad}</span>`;
+      }
+
+      function accessoryCards(accessories) {
+        return accessories.map((item) => {
+          const type = escapeHtml(item.typeLabel || item.type || '');
+          const status = escapeHtml(item.statusLabel || item.status || 'OK');
+          const rssi = item.rssi ? ` · ${escapeHtml(item.rssi)}` : '';
+          return `
+            <div class="item">
+              <div class="item-name">${escapeHtml(item.name)}</div>
+              <div class="item-meta">${type} · ${status}${rssi}</div>
+              <div class="item-pills">
+                ${pill(item.batteryOk, 'Batterij OK', 'Batterij laag')}
+                ${pill(item.tamperOk, 'Geen sabotage', 'Sabotage')}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function historyCards(history) {
+        if (!Array.isArray(history) || !history.length) {
+          return '<p>Geen geschiedenis.</p>';
+        }
+
+        return history.slice(0, 30).map((item) => {
+          const at = item.at ? new Date(item.at).toLocaleString() : '';
+          const type = item.type ? ` · ${escapeHtml(historyType(item.type))}` : '';
+          return `
+            <div class="history-entry">
+              <div class="history-time">${escapeHtml(at)}${type}</div>
+              <div class="history-message">${escapeHtml(item.message)}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function dashboardHtml(data) {
+        const lastOk = data.lastOk ? new Date(data.lastOk).toLocaleString() : 'Nog niet';
+        const openNames = data.openContactNames && data.openContactNames.length
+          ? `<div class="dashboard-list">Open: ${escapeHtml(data.openContactNames.join(', '))}</div>`
+          : '';
+        const problemNames = data.problemNames && data.problemNames.length
+          ? `<div class="dashboard-list">Storingen: ${escapeHtml(data.problemNames.join('; '))}</div>`
+          : '';
+        const error = data.lastError ? `<div class="dashboard-list bad">${escapeHtml(data.lastError)}</div>` : '';
+
+        return `
+          <div class="dashboard-grid">
+            ${metric('Alarm', data.statusLabel || data.status || 'Onbekend')}
+            ${metric('Onderdelen', data.accessories || 0)}
+            ${metric('Storingen', data.problems || 0)}
+            ${metric('Open', data.openContacts || 0)}
+          </div>
+          <div class="dashboard-list">Laatste uitlezing: ${escapeHtml(lastOk)}</div>
+          ${openNames}
+          ${problemNames}
+          ${error}
+        `;
+      }
+
+      function metric(label, value) {
+        return `
+          <div class="metric">
+            <div class="metric-label">${escapeHtml(label)}</div>
+            <div class="metric-value">${escapeHtml(value)}</div>
+          </div>
+        `;
+      }
+
+      function historyType(type) {
+        return {
+          alarm: 'Alarm',
+          alarm_sensor: 'Sensoralarm',
+          alarm_repeat: 'Herhaling',
+          alarm_resolved: 'Alarm gestopt',
+          acknowledged: 'Bevestigd',
+          problem: 'Storing',
+          new_accessory: 'Nieuw onderdeel',
+          status: 'Status',
+        }[type] || type;
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function boolValue(value, fallback) {
+        if (value === undefined || value === null || value === '') return Boolean(fallback);
+        if (typeof value === 'boolean') return value;
+        return ['true', '1', 'yes', 'ja', 'on'].includes(String(value).toLowerCase());
+      }
+
+      function defaultValue(field) {
+        return {
+          url: 'http://192.168.1.100',
+          username: '',
+          password: '',
+          area: '1',
+          poll_seconds: '20',
+          dry_run: false,
+          notify_on_alarm: true,
+          repeat_alarm_notifications: true,
+          repeat_alarm_seconds: '30',
+          repeat_alarm_max: '10',
+          notify_on_new_accessory: true,
+          notify_on_accessory_problem: true,
+          accessory_problem_silence_hours: '6',
+          check_open_contacts_before_arm: true,
+          block_arm_with_open_contacts: true,
+          notify_on_unreachable: true,
+          call_webhook_on_alarm: false,
+          call_webhook_url: '',
+        }[field] || '';
+      }
+    </script>
+  </body>
+</html>
+

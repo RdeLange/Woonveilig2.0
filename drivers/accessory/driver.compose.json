@@ -1,0 +1,25 @@
+{
+  "name": {
+    "en": "WoonVeilig Accessory",
+    "nl": "WoonVeilig Accessoire"
+  },
+  "class": "sensor",
+  "capabilities": [
+    "accessory_status",
+    "alarm_problem",
+    "alarm_battery",
+    "alarm_tamper"
+  ],
+  "energy": {
+    "batteries": ["INTERNAL"]
+  },
+  "images": {
+    "small": "/drivers/accessory/assets/images/small.png",
+    "large": "/drivers/accessory/assets/images/large.png",
+    "xlarge": "/drivers/accessory/assets/images/xlarge.png"
+  },
+  "platforms": [
+    "local"
+  ]
+}
+

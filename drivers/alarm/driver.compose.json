@@ -1,0 +1,51 @@
+{
+  "id": "alarm",
+  "name": {
+    "en": "WoonVeilig",
+    "nl": "WoonVeilig"
+  },
+  "class": "homealarm",
+  "capabilities": [
+    "onoff",
+    "alarm_mode"
+  ],
+  "capabilitiesOptions": {
+    "onoff": {
+      "title": {
+        "en": "Alarm",
+        "nl": "Alarm"
+      },
+      "uiQuickAction": true,
+      "titleTrue": {
+        "en": "Armed",
+        "nl": "Aan"
+      },
+      "titleFalse": {
+        "en": "Disarmed",
+        "nl": "Uit"
+      }
+    }
+  },
+  "images": {
+    "small": "/drivers/alarm/assets/images/small.png",
+    "large": "/drivers/alarm/assets/images/large.png",
+    "xlarge": "/drivers/alarm/assets/images/xlarge.png"
+  },
+  "platforms": [
+    "local"
+  ],
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}
+

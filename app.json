@@ -1,0 +1,550 @@
+{
+  "id": "nl.community.woonveiliglocal",
+  "version": "0.8.0",
+  "compatibility": ">=12.2.0",
+  "sdk": 3,
+  "runtime": "nodejs",
+  "platforms": [
+    "local"
+  ],
+  "brandColor": "#1E8B57",
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "name": {
+    "en": "WoonVeilig Local",
+    "nl": "WoonVeilig Lokaal"
+  },
+  "description": {
+    "en": "Reads a WoonVeilig/Egardia alarm panel and accessories locally and exposes status in Homey.",
+    "nl": "Leest een WoonVeilig/Egardia alarmcentrale en accessoires lokaal uit en maakt de status beschikbaar in Homey."
+  },
+  "category": "security",
+  "tags": {
+    "en": ["woonveilig", "egardia", "alarm", "accessory"],
+    "nl": ["woonveilig", "egardia", "alarm", "accessoire"]
+  },
+  "permissions": [
+    "homey:manager:api"
+  ],
+  "author": {
+    "name": "WoonVeilig Homey Community",
+    "email": "support@example.invalid"
+  },
+  "capabilities": {
+    "alarm_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Alarm mode",
+        "nl": "Alarmstand"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "disarmed",
+          "title": {
+            "en": "Off",
+            "nl": "Uit"
+          }
+        },
+        {
+          "id": "armed_away",
+          "title": {
+            "en": "Away",
+            "nl": "Aan"
+          }
+        },
+        {
+          "id": "armed_home",
+          "title": {
+            "en": "Home",
+            "nl": "Thuis"
+          }
+        },
+        {
+          "id": "triggered",
+          "title": {
+            "en": "Triggered",
+            "nl": "Alarm"
+          }
+        },
+        {
+          "id": "unknown",
+          "title": {
+            "en": "Unknown",
+            "nl": "Onbekend"
+          }
+        }
+      ]
+    },
+    "accessory_status": {
+      "type": "string",
+      "title": {
+        "en": "Accessory status",
+        "nl": "Accessoirestatus"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/icon.svg"
+    }
+  },
+  "drivers": [
+    {
+      "id": "alarm",
+      "name": {
+        "en": "WoonVeilig",
+        "nl": "WoonVeilig"
+      },
+      "class": "homealarm",
+      "capabilities": [
+        "onoff",
+        "alarm_mode"
+      ],
+      "capabilitiesOptions": {
+        "onoff": {
+          "title": {
+            "en": "Alarm",
+            "nl": "Alarm"
+          },
+          "uiQuickAction": true,
+          "titleTrue": {
+            "en": "Armed",
+            "nl": "Aan"
+          },
+          "titleFalse": {
+            "en": "Disarmed",
+            "nl": "Uit"
+          }
+        }
+      },
+      "images": {
+        "small": "/drivers/alarm/assets/images/small.png",
+        "large": "/drivers/alarm/assets/images/large.png",
+        "xlarge": "/drivers/alarm/assets/images/xlarge.png"
+      },
+      "platforms": [
+        "local"
+      ],
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ]
+    },
+    {
+      "id": "accessory",
+      "name": {
+        "en": "WoonVeilig Accessory",
+        "nl": "WoonVeilig Accessoire"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "accessory_status",
+        "alarm_problem",
+        "alarm_battery",
+        "alarm_tamper"
+      ],
+      "energy": {
+        "batteries": ["INTERNAL"]
+      },
+      "images": {
+        "small": "/drivers/accessory/assets/images/small.png",
+        "large": "/drivers/accessory/assets/images/large.png",
+        "xlarge": "/drivers/accessory/assets/images/xlarge.png"
+      },
+      "platforms": [
+        "local"
+      ]
+    }
+  ],
+  "flow": {
+    "triggers": [
+      {
+        "id": "status_changed",
+        "title": {
+          "en": "The alarm status changed",
+          "nl": "De alarmstatus is veranderd"
+        },
+        "tokens": [
+          {
+            "name": "status",
+            "type": "string",
+            "title": {
+              "en": "Status",
+              "nl": "Status"
+            }
+          },
+          {
+            "name": "raw_mode",
+            "type": "string",
+            "title": {
+              "en": "Raw mode",
+              "nl": "Ruwe modus"
+            }
+          }
+        ]
+      },
+      {
+        "id": "accessory_changed",
+        "title": {
+          "en": "An accessory status changed",
+          "nl": "Een accessoirestatus is veranderd"
+        },
+        "tokens": [
+          {
+            "name": "name",
+            "type": "string",
+            "title": {
+              "en": "Name",
+              "nl": "Naam"
+            }
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "title": {
+              "en": "Type",
+              "nl": "Type"
+            }
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "title": {
+              "en": "Status",
+              "nl": "Status"
+            }
+          },
+          {
+            "name": "battery",
+            "type": "string",
+            "title": {
+              "en": "Battery",
+              "nl": "Batterij"
+            }
+          },
+          {
+            "name": "tamper",
+            "type": "string",
+            "title": {
+              "en": "Tamper",
+              "nl": "Sabotage"
+            }
+          }
+        ]
+      },
+      {
+        "id": "alarm_triggered",
+        "title": {
+          "en": "The alarm goes off",
+          "nl": "Het alarm gaat af"
+        },
+        "tokens": [
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "nl": "Melding"
+            }
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "title": {
+              "en": "Status",
+              "nl": "Status"
+            }
+          },
+          {
+            "name": "raw_mode",
+            "type": "string",
+            "title": {
+              "en": "Raw mode",
+              "nl": "Ruwe modus"
+            }
+          }
+        ]
+      },
+      {
+        "id": "alarm_repeat",
+        "title": {
+          "en": "The alarm reminder is sent",
+          "nl": "De alarmherinnering wordt verstuurd"
+        },
+        "tokens": [
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "nl": "Melding"
+            }
+          },
+          {
+            "name": "count",
+            "type": "number",
+            "title": {
+              "en": "Count",
+              "nl": "Aantal"
+            }
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "title": {
+              "en": "Maximum",
+              "nl": "Maximum"
+            }
+          }
+        ]
+      },
+      {
+        "id": "test_notification_requested",
+        "title": {
+          "en": "A push notification is requested",
+          "nl": "Een pushmelding is gevraagd"
+        },
+        "tokens": [
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "nl": "Melding"
+            }
+          }
+        ]
+      },
+      {
+        "id": "accessory_status_changed",
+        "title": {
+          "en": "The accessory status changed",
+          "nl": "De accessoirestatus is veranderd"
+        },
+        "titleFormatted": {
+          "en": "The accessory status of [[device]] changed",
+          "nl": "De accessoirestatus van [[device]] is veranderd"
+        },
+        "tokens": [
+          {
+            "name": "status",
+            "type": "string",
+            "title": {
+              "en": "Status",
+              "nl": "Status"
+            }
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "title": {
+              "en": "Type",
+              "nl": "Type"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "class=sensor"
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "status_is",
+        "title": {
+          "en": "The alarm status is [[status]]",
+          "nl": "De alarmstatus is [[status]]"
+        },
+        "titleFormatted": {
+          "en": "The alarm status is [[status]]",
+          "nl": "De alarmstatus is [[status]]"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "status",
+            "title": {
+              "en": "Status",
+              "nl": "Status"
+            },
+            "values": [
+              {
+                "id": "disarmed",
+                "label": {
+                  "en": "Disarmed",
+                  "nl": "Uitgeschakeld"
+                }
+              },
+              {
+                "id": "armed_away",
+                "label": {
+                  "en": "Armed away",
+                  "nl": "Volledig ingeschakeld"
+                }
+              },
+              {
+                "id": "armed_home",
+                "label": {
+                  "en": "Armed home",
+                  "nl": "Thuisstand"
+                }
+              },
+              {
+                "id": "triggered",
+                "label": {
+                  "en": "Triggered",
+                  "nl": "Alarm"
+                }
+              },
+              {
+                "id": "unknown",
+                "label": {
+                  "en": "Unknown",
+                  "nl": "Onbekend"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "refresh_now",
+        "title": {
+          "en": "Refresh alarm status now",
+          "nl": "Alarmstatus nu verversen"
+        }
+      },
+      {
+        "id": "set_disarmed",
+        "title": {
+          "en": "Disarm the alarm",
+          "nl": "Alarm uitschakelen"
+        }
+      },
+      {
+        "id": "set_armed_away",
+        "title": {
+          "en": "Arm the alarm fully",
+          "nl": "Alarm volledig inschakelen"
+        }
+      },
+      {
+        "id": "set_armed_home",
+        "title": {
+          "en": "Arm the alarm in home mode",
+          "nl": "Alarm in thuisstand inschakelen"
+        }
+      },
+      {
+        "id": "set_alarm_mode",
+        "title": {
+          "en": "Set alarm to [[mode]]",
+          "nl": "Zet alarm op [[mode]]"
+        },
+        "titleFormatted": {
+          "en": "Set alarm to [[mode]]",
+          "nl": "Zet alarm op [[mode]]"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "title": {
+              "en": "Mode",
+              "nl": "Modus"
+            },
+            "values": [
+              {
+                "id": "0",
+                "label": {
+                  "en": "Disarmed",
+                  "nl": "Uitgeschakeld"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Armed away",
+                  "nl": "Volledig ingeschakeld"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "Armed home",
+                  "nl": "Thuisstand"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "acknowledge_alarm",
+        "title": {
+          "en": "Acknowledge alarm notification",
+          "nl": "Alarmmelding bevestigen"
+        }
+      }
+    ]
+  },
+  "api": {
+    "getAccessories": {
+      "method": "GET",
+      "path": "/accessories"
+    },
+    "testConnection": {
+      "method": "GET",
+      "path": "/test-connection"
+    },
+    "testPush": {
+      "method": "POST",
+      "path": "/test-push"
+    },
+    "exportSettings": {
+      "method": "GET",
+      "path": "/settings-export"
+    },
+    "acknowledgeAlarm": {
+      "method": "POST",
+      "path": "/acknowledge-alarm"
+    },
+    "getAlarmHistory": {
+      "method": "GET",
+      "path": "/alarm-history"
+    },
+    "getDashboard": {
+      "method": "GET",
+      "path": "/dashboard"
+    },
+    "getPushUsers": {
+      "method": "GET",
+      "path": "/push-users"
+    },
+    "clearAlarmHistory": {
+      "method": "POST",
+      "path": "/alarm-history/clear"
+    }
+  }
+}
+

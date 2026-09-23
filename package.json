@@ -1,0 +1,21 @@
+{
+  "name": "nl.community.woonveiliglocal",
+  "version": "0.8.0",
+  "description": "Homey Pro app voor lokale WoonVeilig/Egardia status en accessoires.",
+  "main": "app.js",
+  "scripts": {
+    "check": "node --check app.js && node --check lib/woonveilig-client.js && node --check lib/accessories.js && node --check lib/homey-push.js && node --check drivers/alarm/driver.js && node --check drivers/alarm/device.js && node test/button-mapping.test.js && node test/accessories.test.js",
+    "test:buttons": "node test/button-mapping.test.js",
+    "test:accessories": "node test/accessories.test.js",
+    "validate": "homey app validate",
+    "run": "homey app run"
+  },
+  "dependencies": {
+    "homey-api": "^3.19.3"
+  },
+  "devDependencies": {
+    "homey": "^3.12.0"
+  },
+  "license": "MIT"
+}
+

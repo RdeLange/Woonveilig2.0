@@ -1,0 +1,32 @@
+{
+  "triggers": [
+    {
+      "id": "accessory_status_changed",
+      "title": {
+        "en": "The accessory status changed",
+        "nl": "De accessoirestatus is veranderd"
+      },
+      "tokens": [
+        {
+          "name": "status",
+          "type": "string",
+          "title": {
+            "en": "Status",
+            "nl": "Status"
+          },
+          "example": "Door Open"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "title": {
+            "en": "Type",
+            "nl": "Type"
+          },
+          "example": "Door Contact"
+        }
+      ]
+    }
+  ]
+}
+
