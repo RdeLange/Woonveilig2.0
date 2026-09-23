@@ -79,11 +79,16 @@ $password = Read-SecretPlainText -Prompt 'Lokale WoonVeilig wachtwoord'
 $area = Read-Default -Prompt 'Gebied' -Default '1'
 $pollSeconds = Read-Default -Prompt 'Verversen in seconden' -Default '20'
 
+Write-Host ''
+$legacyInput = Read-Host 'Heb je een legacy WV-1716 systeem? (j/n)'
+$legacyMode = if ($legacyInput -eq 'j' -or $legacyInput -eq 'J' -or $legacyInput -eq 'yes') { 'true' } else { 'false' }
+
 Set-HomeySetting -Name 'url' -Value $url
 Set-HomeySetting -Name 'username' -Value $username
 Set-HomeySetting -Name 'password' -Value $password
 Set-HomeySetting -Name 'area' -Value $area
 Set-HomeySetting -Name 'poll_seconds' -Value $pollSeconds
+Set-HomeySetting -Name 'legacy_mode' -Value $legacyMode
 Set-HomeySetting -Name 'dry_run' -Value 'false'
 Set-HomeySetting -Name 'notify_on_alarm' -Value 'true'
 Set-HomeySetting -Name 'repeat_alarm_notifications' -Value 'true'

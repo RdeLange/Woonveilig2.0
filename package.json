@@ -1,6 +1,6 @@
 {
   "name": "nl.community.woonveiliglocal",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Homey Pro app voor lokale WoonVeilig/Egardia status en accessoires.",
   "main": "app.js",
   "scripts": {
