@@ -73,10 +73,6 @@ homey app uninstall 2>$null
 Start-Sleep -Seconds 2
 
 Write-Host ''
-Write-Host 'App installeren. Kies jouw eigen Homey als daarom gevraagd wordt.' -ForegroundColor Cyan
-homey app install
-
-Write-Host ''
 Write-Host 'WoonVeilig instellingen invullen voor jouw eigen centrale.' -ForegroundColor Cyan
 $url = Read-Default -Prompt 'Lokaal adres van WoonVeilig' -Default 'http://192.168.1.100'
 $username = Read-Host 'Lokale WoonVeilig gebruikersnaam'
@@ -88,6 +84,15 @@ Write-Host ''
 $legacyInput = Read-Host 'Heb je een legacy WV-1716 systeem? (j/n)'
 $legacyMode = if ($legacyInput -eq 'j' -or $legacyInput -eq 'J' -or $legacyInput -eq 'yes') { 'true' } else { 'false' }
 
+Write-Host ''
+Write-Host 'App installeren. Kies jouw eigen Homey als daarom gevraagd wordt.' -ForegroundColor Cyan
+homey app install
+
+Write-Host ''
+Write-Host 'Even wachten... instellingen opslaan...' -ForegroundColor Yellow
+Start-Sleep -Seconds 3
+
+Write-Host 'Instellingen configureren...' -ForegroundColor Cyan
 Set-HomeySetting -Name 'url' -Value $url
 Set-HomeySetting -Name 'username' -Value $username
 Set-HomeySetting -Name 'password' -Value $password
@@ -101,6 +106,16 @@ Set-HomeySetting -Name 'repeat_alarm_seconds' -Value '30'
 Set-HomeySetting -Name 'repeat_alarm_max' -Value '10'
 
 Write-Host ''
-Write-Host 'Klaar. Open Homey -> Meer -> Apps -> WoonVeilig Lokaal -> Instellingen om te controleren.' -ForegroundColor Green
-Write-Host 'Voeg daarna de apparaten toe via Apparaten -> plusje -> Nieuw apparaat -> WoonVeilig.' -ForegroundColor Green
+Write-Host 'Even wachten... instellingen worden opgeslagen...' -ForegroundColor Yellow
+Start-Sleep -Seconds 2
+
+Write-Host ''
+Write-Host 'Klaar! ✓' -ForegroundColor Green
+Write-Host ''
+Write-Host 'Volgende stappen:' -ForegroundColor Cyan
+Write-Host '1. Wacht 10 seconden tot Homey de app heeft geladen'
+Write-Host '2. Open Homey -> Meer -> Apps -> WoonVeilig Lokaal -> Instellingen'
+Write-Host '3. Controleer dat je instellingen correct zijn opgeslagen'
+Write-Host '4. Voeg apparaten toe via Apparaten -> plusje -> Nieuw apparaat -> WoonVeilig'
+Write-Host ''
 

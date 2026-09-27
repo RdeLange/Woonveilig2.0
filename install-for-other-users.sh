@@ -95,6 +95,11 @@ echo ""
 echo -e "${CYAN}📱 Nieuwe versie installeren op Homey...${NC}"
 npm run run
 
+# Wait for app to initialize
+echo ""
+echo -e "${CYAN}⏳ Even wachten... app wordt geladen...${NC}"
+sleep 3
+
 # Set configuration via Homey API
 echo ""
 echo -e "${CYAN}⚙️ Instellingen configureren...${NC}"
@@ -117,10 +122,17 @@ set_setting "password" "$WOONVEILIG_PASSWORD"
 set_setting "area" "$WOONVEILIG_AREA"
 set_setting "legacy_mode" "$LEGACY_MODE"
 
+# Wait for settings to be saved
+echo ""
+echo -e "${CYAN}⏳ Even wachten... instellingen worden opgeslagen...${NC}"
+sleep 2
+
 echo ""
 echo -e "${GREEN}✅ Installatie voltooid!${NC}"
 echo ""
-echo "Je kunt nu in Homey:"
-echo "  • Apps → WoonVeilig Lokaal → Instellingen"
-echo "  • Daar kun je de instellingen controleren"
+echo "Volgende stappen:"
+echo "  1. Wacht 10 seconden tot Homey de app volledig heeft geladen"
+echo "  2. Apps → WoonVeilig Lokaal → Instellingen"
+echo "  3. Controleer dat je instellingen correct zijn opgeslagen"
+echo "  4. Apparaten → plusje → Nieuw apparaat → WoonVeilig"
 echo ""
