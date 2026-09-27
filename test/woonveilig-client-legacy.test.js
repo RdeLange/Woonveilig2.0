@@ -173,18 +173,40 @@ function testActionDetection() {
   console.log('  ✓ Alarm action detection');
 }
 
-async function testAccessoriesArray() {
-  console.log('Testing accessories...');
+async function testAccessoriesNormalization() {
+  console.log('Testing legacy accessory normalization...');
+  const { normalizeAccessory } = require('../lib/accessories');
+
+  // Test door contact normalization
+  const doorContact = fixtures.legacySystemAccessories.sensors[0];
+  const normalized1 = normalizeAccessory(doorContact);
+  assert.strictEqual(normalized1.id, 'sensor-1');
+  assert.strictEqual(normalized1.name, 'Voordeur');
+  assert.strictEqual(normalized1.kind, 'contact');
+  assert.strictEqual(normalized1.batteryOk, true);
+  assert.strictEqual(normalized1.condOk, true);
+  console.log('  ✓ Door contact normalization');
+
+  // Test motion sensor with low battery
+  const motionSensor = fixtures.legacySystemAccessories.sensors[1];
+  const normalized2 = normalizeAccessory(motionSensor);
+  assert.strictEqual(normalized2.id, 'sensor-2');
+  assert.strictEqual(normalized2.name, 'Woonkamer');
+  assert.strictEqual(normalized2.kind, 'motion');
+  assert.strictEqual(normalized2.batteryOk, false);
+  assert.strictEqual(normalized2.batteryAlarm, true);
+  console.log('  ✓ Motion sensor normalization with low battery');
+
+  // Test malformed response parsing
   const client = new WoonveiligClientLegacy({
     url: 'http://localhost',
     username: 'test',
     password: 'test',
   });
-
-  const accessories = await client.getAccessories();
-  assert.strictEqual(Array.isArray(accessories), true);
-  assert.strictEqual(accessories.length, 0);
-  console.log('  ✓ Legacy system returns empty accessories array');
+  const parsed = client.cleanAndParseJson(fixtures.legacySystemAccessoriesMalformed);
+  assert.strictEqual(Array.isArray(parsed.sensors), true);
+  assert.strictEqual(parsed.sensors.length, 1);
+  console.log('  ✓ Malformed accessory response parsing');
 }
 
 async function run() {
@@ -197,7 +219,7 @@ async function run() {
     testStateDerivation();
     testAlarmDerivation();
     testActionDetection();
-    await testAccessoriesArray();
+    await testAccessoriesNormalization();
 
     console.log('\n✅ All legacy client tests passed!\n');
   } catch (error) {
