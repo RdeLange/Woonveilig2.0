@@ -36,7 +36,15 @@ function Set-HomeySetting {
     [Parameter(Mandatory = $true)]$Value
   )
 
-  homey api apps set-app-setting --json --id $AppId --name $Name --value $Value | Out-Null
+  $result = & homey api apps set-app-setting --json --id $AppId --name $Name --value $Value 2>&1
+
+  if ($LASTEXITCODE -eq 0) {
+    Write-Host "  ✓ $Name ingesteld" -ForegroundColor Green
+  } else {
+    Write-Host "  ✗ FOUT bij $Name`: $result" -ForegroundColor Red
+    Write-Host "    Probeer handmatig in te stellen via:" -ForegroundColor Yellow
+    Write-Host "    homey api apps set-app-setting --json --id $AppId --name $Name --value $Value" -ForegroundColor Yellow
+  }
 }
 
 Write-Host ''
@@ -112,10 +120,25 @@ Start-Sleep -Seconds 2
 Write-Host ''
 Write-Host 'Klaar! ✓' -ForegroundColor Green
 Write-Host ''
-Write-Host 'Volgende stappen:' -ForegroundColor Cyan
-Write-Host '1. Wacht 10 seconden tot Homey de app heeft geladen'
-Write-Host '2. Open Homey -> Meer -> Apps -> WoonVeilig Lokaal -> Instellingen'
-Write-Host '3. Controleer dat je instellingen correct zijn opgeslagen'
-Write-Host '4. Voeg apparaten toe via Apparaten -> plusje -> Nieuw apparaat -> WoonVeilig'
+Write-Host 'BELANGRIJK - Volgende stappen:' -ForegroundColor Cyan
+Write-Host ''
+Write-Host '1. Wacht minimaal 15 seconden tot Homey de app volledig heeft geladen' -ForegroundColor White
+Write-Host '2. Open Homey app op je telefoon/tablet' -ForegroundColor White
+Write-Host '3. Ga naar: Meer → Apps → WoonVeilig Lokaal → Instellingen' -ForegroundColor White
+Write-Host ''
+Write-Host 'CONTROLEER: Zijn je instellingen opgeslagen?' -ForegroundColor Yellow
+Write-Host ''
+Write-Host 'JA - Instellingen zijn opgeslagen:' -ForegroundColor Green
+Write-Host '  ✓ Voeg apparaten toe via: Apparaten → plusje → Nieuw apparaat → WoonVeilig' -ForegroundColor Green
+Write-Host ''
+Write-Host 'NEE - Instellingen zijn NIET opgeslagen (leeg scherm):' -ForegroundColor Red
+Write-Host '  1. Vul de instellingen handmatig in op dit scherm' -ForegroundColor Yellow
+Write-Host '  2. Klik op "Opslaan" of equivalent knop' -ForegroundColor Yellow
+Write-Host '  3. Zet legacy mode AAN als je WV-1716 hebt' -ForegroundColor Yellow
+Write-Host ''
+Write-Host 'Problemen? Controleer:' -ForegroundColor Cyan
+Write-Host '  • Homey CLI is ingelogd (run: homey login)' -ForegroundColor Cyan
+Write-Host '  • Verbinding met Homey Hub is OK' -ForegroundColor Cyan
+Write-Host '  • Probeer handmatig instellingen in te stellen in Homey' -ForegroundColor Cyan
 Write-Host ''
 

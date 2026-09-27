@@ -108,10 +108,14 @@ echo -e "${CYAN}⚙️ Instellingen configureren...${NC}"
 set_setting() {
     local name=$1
     local value=$2
-    if homey api apps set-app-setting --json --id "$APP_ID" --name "$name" --value "$value" &> /dev/null; then
+    local output
+    output=$(homey api apps set-app-setting --json --id "$APP_ID" --name "$name" --value "$value" 2>&1)
+    if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓${NC} $name ingesteld"
     else
-        echo -e "${RED}✗${NC} Kon $name niet instellen"
+        echo -e "${RED}✗${NC} FOUT bij $name: $output"
+        echo -e "${YELLOW}Probeer handmatig in te stellen via:${NC}"
+        echo "homey api apps set-app-setting --json --id $APP_ID --name $name --value $value"
     fi
 }
 
@@ -130,9 +134,24 @@ sleep 2
 echo ""
 echo -e "${GREEN}✅ Installatie voltooid!${NC}"
 echo ""
-echo "Volgende stappen:"
-echo "  1. Wacht 10 seconden tot Homey de app volledig heeft geladen"
-echo "  2. Apps → WoonVeilig Lokaal → Instellingen"
-echo "  3. Controleer dat je instellingen correct zijn opgeslagen"
-echo "  4. Apparaten → plusje → Nieuw apparaat → WoonVeilig"
+echo -e "${CYAN}BELANGRIJK - Volgende stappen:${NC}"
+echo ""
+echo "1. Wacht minimaal 15 seconden tot Homey de app volledig heeft geladen"
+echo "2. Open Homey app op je telefoon/tablet"
+echo "3. Ga naar: Meer → Apps → WoonVeilig Lokaal → Instellingen"
+echo ""
+echo -e "${YELLOW}CONTROLEER: Zijn je instellingen opgeslagen?${NC}"
+echo ""
+echo -e "${GREEN}JA - Instellingen zijn opgeslagen:${NC}"
+echo "  ✓ Voeg apparaten toe via: Apparaten → plusje → Nieuw apparaat → WoonVeilig"
+echo ""
+echo -e "${RED}NEE - Instellingen zijn NIET opgeslagen (leeg scherm):${NC}"
+echo "  1. Vul de instellingen handmatig in op dit scherm"
+echo "  2. Klik op 'Opslaan' of equivalent knop"
+echo "  3. Zet legacy mode AAN als je WV-1716 hebt"
+echo ""
+echo -e "${CYAN}Problemen? Controleer:${NC}"
+echo "  • Homey CLI is ingelogd (run: homey login)"
+echo "  • Verbinding met Homey Hub is OK"
+echo "  • Probeer handmatig instellingen in te stellen in Homey"
 echo ""
