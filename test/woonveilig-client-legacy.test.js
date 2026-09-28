@@ -35,40 +35,40 @@ function testModeMapping() {
     password: 'test',
   });
 
-  // Legacy to Modern mapping
+  // Legacy to Modern mapping (WV-1716: 2=disarm, 0=arm_away, 1=arm_home)
   assert.strictEqual(client.legacyModeToModern('Disarm'), 'disarmed');
   assert.strictEqual(client.legacyModeToModern('disarm'), 'disarmed');
-  assert.strictEqual(client.legacyModeToModern('0'), 'disarmed');
-  console.log('  ✓ Disarm mode mapping');
+  assert.strictEqual(client.legacyModeToModern('2'), 'disarmed');
+  console.log('  ✓ Disarm mode mapping (2 = disarmed)');
 
   assert.strictEqual(client.legacyModeToModern('Arm'), 'armed_away');
   assert.strictEqual(client.legacyModeToModern('Full Arm'), 'armed_away');
   assert.strictEqual(client.legacyModeToModern('arm'), 'armed_away');
-  assert.strictEqual(client.legacyModeToModern('1'), 'armed_away');
-  console.log('  ✓ Armed (full) mode mapping');
+  assert.strictEqual(client.legacyModeToModern('0'), 'armed_away');
+  console.log('  ✓ Armed (full) mode mapping (0 = armed_away)');
 
   assert.strictEqual(client.legacyModeToModern('Home'), 'armed_home');
   assert.strictEqual(client.legacyModeToModern('Home Arm 1'), 'armed_home');
   assert.strictEqual(client.legacyModeToModern('Home Arm 2'), 'armed_home');
   assert.strictEqual(client.legacyModeToModern('Home Arm 3'), 'armed_home');
-  assert.strictEqual(client.legacyModeToModern('2'), 'armed_home');
-  console.log('  ✓ Home (partial) mode mapping');
+  assert.strictEqual(client.legacyModeToModern('1'), 'armed_home');
+  console.log('  ✓ Home (partial) mode mapping (1 = armed_home)');
 
   assert.strictEqual(client.legacyModeToModern('unknown'), 'unknown');
   console.log('  ✓ Unknown mode handling');
 
-  // Modern to Legacy mapping
-  assert.strictEqual(client.modernModeToLegacy('0'), '0');
-  assert.strictEqual(client.modernModeToLegacy('disarmed'), '0');
-  console.log('  ✓ Modern to legacy: disarmed');
+  // Modern to Legacy mapping (WV-1716: disarm=2, arm_away=0, arm_home=1)
+  assert.strictEqual(client.modernModeToLegacy('0'), '2');  // numeric 0 = disarmed
+  assert.strictEqual(client.modernModeToLegacy('disarmed'), '2');
+  console.log('  ✓ Modern to legacy: disarmed → 2');
 
-  assert.strictEqual(client.modernModeToLegacy('1'), '1');
-  assert.strictEqual(client.modernModeToLegacy('armed_away'), '1');
-  console.log('  ✓ Modern to legacy: armed away');
+  assert.strictEqual(client.modernModeToLegacy('1'), '0');  // numeric 1 = armed_away
+  assert.strictEqual(client.modernModeToLegacy('armed_away'), '0');
+  console.log('  ✓ Modern to legacy: armed_away → 0');
 
-  assert.strictEqual(client.modernModeToLegacy('2'), '2');
-  assert.strictEqual(client.modernModeToLegacy('armed_home'), '2');
-  console.log('  ✓ Modern to legacy: armed home');
+  assert.strictEqual(client.modernModeToLegacy('2'), '1');  // numeric 2 = armed_home
+  assert.strictEqual(client.modernModeToLegacy('armed_home'), '1');
+  console.log('  ✓ Modern to legacy: armed_home → 1');
 }
 
 function testEventLogParsing() {
