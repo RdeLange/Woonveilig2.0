@@ -176,36 +176,51 @@ function testActionDetection() {
 async function testAccessoriesNormalization() {
   console.log('Testing legacy accessory normalization...');
   const { normalizeAccessory } = require('../lib/accessories');
-
-  // Test door contact normalization
-  const doorContact = fixtures.legacySystemAccessories.sensors[0];
-  const normalized1 = normalizeAccessory(doorContact);
-  assert.strictEqual(normalized1.id, 'sensor-1');
-  assert.strictEqual(normalized1.name, 'Voordeur');
-  assert.strictEqual(normalized1.kind, 'contact');
-  assert.strictEqual(normalized1.batteryOk, true);
-  assert.strictEqual(normalized1.condOk, true);
-  console.log('  ✓ Door contact normalization');
-
-  // Test motion sensor with low battery
-  const motionSensor = fixtures.legacySystemAccessories.sensors[1];
-  const normalized2 = normalizeAccessory(motionSensor);
-  assert.strictEqual(normalized2.id, 'sensor-2');
-  assert.strictEqual(normalized2.name, 'Woonkamer');
-  assert.strictEqual(normalized2.kind, 'motion');
-  assert.strictEqual(normalized2.batteryOk, false);
-  assert.strictEqual(normalized2.batteryAlarm, true);
-  console.log('  ✓ Motion sensor normalization with low battery');
-
-  // Test malformed response parsing
   const client = new WoonveiligClientLegacy({
     url: 'http://localhost',
     username: 'test',
     password: 'test',
   });
+
+  // Test door contact (closed) - WV-1716: empty cond = ok/closed
+  const doorContactClosed = fixtures.legacySystemAccessories.sensors[0];
+  const normalized1 = client.normalizeLegacySensor(doorContactClosed);
+  const normalized1Final = normalizeAccessory(normalized1);
+  assert.strictEqual(normalized1Final.id, 'sensor-1');
+  assert.strictEqual(normalized1Final.name, 'Voordeur');
+  assert.strictEqual(normalized1Final.kind, 'contact');
+  assert.strictEqual(normalized1Final.condOk, true);
+  assert.strictEqual(normalized1Final.batteryAlarm, false);  // WV-1716: no battery check
+  assert.strictEqual(normalized1Final.tamperAlarm, false);   // WV-1716: no tamper check
+  console.log('  ✓ Door contact (closed) normalization');
+
+  // Test motion sensor (ok) - WV-1716: empty cond = ok
+  const motionSensorOk = fixtures.legacySystemAccessories.sensors[1];
+  const normalized2 = client.normalizeLegacySensor(motionSensorOk);
+  const normalized2Final = normalizeAccessory(normalized2);
+  assert.strictEqual(normalized2Final.id, 'sensor-2');
+  assert.strictEqual(normalized2Final.name, 'Woonkamer');
+  assert.strictEqual(normalized2Final.kind, 'motion');
+  assert.strictEqual(normalized2Final.condOk, true);
+  assert.strictEqual(normalized2Final.motionAlarm, false);
+  console.log('  ✓ Motion sensor (ok) normalization');
+
+  // Test door contact (open) - WV-1716: non-empty cond = triggered/open
+  const doorContactOpen = fixtures.legacySystemAccessories.sensors[2];
+  const normalized3 = client.normalizeLegacySensor(doorContactOpen);
+  const normalized3Final = normalizeAccessory(normalized3);
+  assert.strictEqual(normalized3Final.id, 'sensor-3');
+  assert.strictEqual(normalized3Final.name, 'Achterdeur');
+  assert.strictEqual(normalized3Final.kind, 'contact');
+  assert.strictEqual(normalized3Final.condOk, false);  // cond not empty = not ok
+  assert.strictEqual(normalized3Final.contactAlarm, true);  // door open alarm
+  console.log('  ✓ Door contact (open) normalization');
+
+  // Test malformed response parsing
   const parsed = client.cleanAndParseJson(fixtures.legacySystemAccessoriesMalformed);
   assert.strictEqual(Array.isArray(parsed.sensors), true);
   assert.strictEqual(parsed.sensors.length, 1);
+  assert.strictEqual(parsed.sensors[0].cond, '');  // cond should be empty
   console.log('  ✓ Malformed accessory response parsing');
 }
 

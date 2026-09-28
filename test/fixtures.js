@@ -92,13 +92,8 @@ const legacySystemAccessories = {
       area: '1',
       zone: '6',
       name: 'Voordeur',
-      cond: 'Close',
-      cond_ok: '1',
-      battery: '95',
-      battery_ok: '1',
-      tamper_ok: '1',
+      cond: '',  // empty = closed/ok (WV-1716 only checks cond field)
       rssi: 'Strong, 9',
-      status: 'Door Close',
       id: 'sensor-1',
     },
     {
@@ -108,19 +103,25 @@ const legacySystemAccessories = {
       area: '1',
       zone: '3',
       name: 'Woonkamer',
-      cond: 'OK',
-      cond_ok: '1',
-      battery: '20',
-      battery_ok: '0',
-      tamper_ok: '1',
+      cond: '',  // empty = ok (WV-1716 only checks cond field)
       rssi: 'Weak, 3',
-      status: '',
       id: 'sensor-2',
+    },
+    {
+      no: 3,
+      type: 4,
+      type_f: 'Door Contact',
+      area: '1',
+      zone: '7',
+      name: 'Achterdeur',
+      cond: 'Open',  // non-empty = triggered/open (WV-1716 uses cond field only)
+      rssi: 'Strong, 8',
+      id: 'sensor-3',
     },
   ],
 };
 
-const legacySystemAccessoriesMalformed = `/*-secure-{ sensors : [{ no: 1, type: 4, type_f: "Door Contact", area: 1, zone: 6, name: "Voordeur", cond: "Close", cond_ok: 1, battery: 95, battery_ok: 1, tamper_ok: 1, rssi: "Strong" }] }*/`;
+const legacySystemAccessoriesMalformed = `/*-secure-{ sensors : [{ no: 1, type: 4, type_f: "Door Contact", area: 1, zone: 6, name: "Voordeur", cond: "", rssi: "Strong" }] }*/`;
 
 module.exports = {
   modernSystemStatus,
