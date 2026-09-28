@@ -100,10 +100,11 @@ echo ""
 echo -e "${CYAN}📱 Nieuwe versie installeren op Homey...${NC}"
 homey app install
 
-# Wait for app to initialize
+# Wait for app to fully initialize before setting configuration
+# Increased from 3s to 5s to ensure Homey has time to bind settings storage
 echo ""
-echo -e "${CYAN}⏳ Even wachten... app wordt geladen...${NC}"
-sleep 3
+echo -e "${CYAN}⏳ Even wachten... Homey initialiseert de app...${NC}"
+sleep 5
 
 # Set configuration via Homey API
 echo ""

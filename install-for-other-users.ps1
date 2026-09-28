@@ -97,8 +97,8 @@ Write-Host 'App installeren. Kies jouw eigen Homey als daarom gevraagd wordt.' -
 homey app install
 
 Write-Host ''
-Write-Host 'Even wachten... instellingen opslaan...' -ForegroundColor Yellow
-Start-Sleep -Seconds 3
+Write-Host 'Even wachten... Homey initialiseert de app...' -ForegroundColor Yellow
+Start-Sleep -Seconds 5
 
 Write-Host 'Instellingen configureren...' -ForegroundColor Cyan
 Set-HomeySetting -Name 'url' -Value $url
@@ -115,7 +115,7 @@ Set-HomeySetting -Name 'repeat_alarm_max' -Value '10'
 
 Write-Host ''
 Write-Host 'Even wachten... instellingen worden opgeslagen...' -ForegroundColor Yellow
-Start-Sleep -Seconds 2
+Start-Sleep -Seconds 3
 
 Write-Host ''
 Write-Host 'Klaar! ✓' -ForegroundColor Green
