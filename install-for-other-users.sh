@@ -73,6 +73,11 @@ if [[ -z "$WOONVEILIG_AREA" ]]; then
     WOONVEILIG_AREA="1"
 fi
 
+read -p "Verversen in seconden [20]: " -r POLL_SECONDS
+if [[ -z "$POLL_SECONDS" ]]; then
+    POLL_SECONDS="20"
+fi
+
 # Ask about legacy mode
 echo ""
 read -p "Heb je een legacy WV-1716 systeem? (j/n) [n]: " -r USE_LEGACY_MODE
@@ -93,7 +98,7 @@ sleep 2
 # Deploy app
 echo ""
 echo -e "${CYAN}📱 Nieuwe versie installeren op Homey...${NC}"
-npm run run
+homey app install
 
 # Wait for app to initialize
 echo ""
@@ -124,7 +129,13 @@ set_setting "url" "$WOONVEILIG_URL"
 set_setting "username" "$WOONVEILIG_USERNAME"
 set_setting "password" "$WOONVEILIG_PASSWORD"
 set_setting "area" "$WOONVEILIG_AREA"
+set_setting "poll_seconds" "$POLL_SECONDS"
 set_setting "legacy_mode" "$LEGACY_MODE"
+set_setting "dry_run" "false"
+set_setting "notify_on_alarm" "true"
+set_setting "repeat_alarm_notifications" "true"
+set_setting "repeat_alarm_seconds" "30"
+set_setting "repeat_alarm_max" "10"
 
 # Wait for settings to be saved
 echo ""
