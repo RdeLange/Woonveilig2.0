@@ -64,20 +64,6 @@
             "en": "Home",
             "nl": "Thuis"
           }
-        },
-        {
-          "id": "triggered",
-          "title": {
-            "en": "Triggered",
-            "nl": "Alarm"
-          }
-        },
-        {
-          "id": "unknown",
-          "title": {
-            "en": "Unknown",
-            "nl": "Onbekend"
-          }
         }
       ]
     },
