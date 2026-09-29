@@ -47,6 +47,14 @@ class WoonveiligLocalApp extends Homey.App {
     this.accessoryById = new Map();
     this.accessoriesLoadedOnce = false;
     this.push = new HomeyPush(this);
+
+    // Optimistic UI: track pending mode changes to avoid flickering
+    this.pendingModeChange = {
+      previousStatus: null,
+      requestedStatus: null,
+      initiatedAt: null,
+      timeoutMs: 12000,  // 12 second timeout
+    };
     this.statusChangedTrigger = this.getFlowCard('getTriggerCard', 'status_changed');
     this.accessoryChangedTrigger = this.getFlowCard('getTriggerCard', 'accessory_changed');
     this.alarmTriggeredTrigger = this.getFlowCard('getTriggerCard', 'alarm_triggered');
@@ -242,10 +250,12 @@ class WoonveiligLocalApp extends Homey.App {
     const settings = this.getSettings();
     const modeText = String(mode);
 
+    // Get the status that corresponds to this mode for optimistic UI
+    const expectedStatus = statusFromMode(modeText);
+
     if (settings.dryRun) {
-      const simulated = statusFromMode(modeText);
-      this.log(`Testmodus: alarmcommando ${modeText} gesimuleerd als ${simulated.state}`);
-      await this.applyStatus(simulated, true);
+      this.log(`Testmodus: alarmcommando ${modeText} gesimuleerd als ${expectedStatus.state}`);
+      await this.applyStatus(expectedStatus, true);
       return;
     }
 
@@ -266,42 +276,126 @@ class WoonveiligLocalApp extends Homey.App {
       }
     }
 
-    const client = this.getClient();
-    await client.setMode(modeText);
-    await this.poll(true);
+    try {
+      // Set pending mode change BEFORE sending to device (optimistic UI)
+      this.pendingModeChange = {
+        previousStatus: this.currentStatus,
+        requestedStatus: expectedStatus.state,
+        initiatedAt: Date.now(),
+        timeoutMs: 12000,
+      };
+
+      // Immediately show the requested mode in the UI (optimistic update)
+      await this.applyStatus(expectedStatus, true);
+
+      // Send the command to the device
+      const client = this.getClient();
+      await client.setMode(modeText);
+
+      // Poll immediately to confirm the change
+      await this.poll(true);
+    } catch (error) {
+      // On error, revert to the previous status
+      this.log(`Fout bij modewijziging: ${error.message}. Terugkeren naar vorige status.`);
+      if (this.pendingModeChange.previousStatus) {
+        const revertStatus = {
+          state: this.pendingModeChange.previousStatus,
+          rawMode: this.rawMode,
+          alarm: false,
+        };
+        await this.applyStatus(revertStatus, true);
+      }
+      // Clear pending state
+      this.pendingModeChange = {
+        previousStatus: null,
+        requestedStatus: null,
+        initiatedAt: null,
+        timeoutMs: 12000,
+      };
+      throw error;
+    }
   }
 
   async applyStatus(status, forceTrigger) {
-    const changed = status.state !== this.currentStatus || status.rawMode !== this.rawMode;
+    // Optimistic UI: handle pending mode changes
+    let effectiveStatus = status;
+    let changed = status.state !== this.currentStatus || status.rawMode !== this.rawMode;
+
+    if (this.pendingModeChange.requestedStatus) {
+      const elapsed = Date.now() - this.pendingModeChange.initiatedAt;
+      const isStillPending = elapsed < this.pendingModeChange.timeoutMs;
+
+      if (isStillPending) {
+        // Still within pending window: ignore polled mode, keep showing requested mode
+        effectiveStatus = {
+          state: this.pendingModeChange.requestedStatus,
+          rawMode: status.rawMode,
+          alarm: status.alarm,
+        };
+        changed = effectiveStatus.state !== this.currentStatus;
+      } else {
+        // Pending timeout expired: check if device confirmed or reverted
+        if (status.state === this.pendingModeChange.requestedStatus) {
+          // Device confirmed the change - clear pending state
+          this.pendingModeChange = {
+            previousStatus: null,
+            requestedStatus: null,
+            initiatedAt: null,
+            timeoutMs: 12000,
+          };
+        } else if (status.state === this.pendingModeChange.previousStatus) {
+          // Device reverted to previous mode (error case) - clear pending and show revert
+          this.log(`Modewijziging getimd uit. Teruggekeerd naar vorige status.`);
+          this.pendingModeChange = {
+            previousStatus: null,
+            requestedStatus: null,
+            initiatedAt: null,
+            timeoutMs: 12000,
+          };
+        } else {
+          // Device is in unexpected state - clear pending but use actual status
+          this.log(`Modewijziging getimd uit. Device staat in onverwachte status: ${status.state}`);
+          this.pendingModeChange = {
+            previousStatus: null,
+            requestedStatus: null,
+            initiatedAt: null,
+            timeoutMs: 12000,
+          };
+        }
+        effectiveStatus = status;
+        changed = status.state !== this.currentStatus || status.rawMode !== this.rawMode;
+      }
+    }
+
     const previousStatus = this.currentStatus;
 
-    this.currentStatus = status.state;
-    this.rawMode = status.rawMode;
-    await this.statusToken.setValue(status.state);
+    this.currentStatus = effectiveStatus.state;
+    this.rawMode = effectiveStatus.rawMode;
+    await this.statusToken.setValue(effectiveStatus.state);
     await this.syncAlarmDevices();
 
     if (forceTrigger || changed) {
       if (this.statusChangedTrigger) {
         await this.statusChangedTrigger.trigger({
-          status: status.state,
-          raw_mode: String(status.rawMode || ''),
+          status: effectiveStatus.state,
+          raw_mode: String(effectiveStatus.rawMode || ''),
         });
       }
       if (changed) {
-        await this.addHistory('status', `Status gewijzigd naar ${statusLabel(status.state)}`, {
-          status: status.state,
-          rawMode: String(status.rawMode || ''),
+        await this.addHistory('status', `Status gewijzigd naar ${statusLabel(effectiveStatus.state)}`, {
+          status: effectiveStatus.state,
+          rawMode: String(effectiveStatus.rawMode || ''),
         });
       }
     }
 
-    if (status.state === 'triggered') {
+    if (effectiveStatus.state === 'triggered') {
       if (changed) {
         this.alarmNotificationAcknowledged = false;
         const message = this.alarmCauseMessage('WoonVeilig alarm gaat af');
         await this.addHistory('alarm', message, {
-          status: status.state,
-          rawMode: String(status.rawMode || ''),
+          status: effectiveStatus.state,
+          rawMode: String(effectiveStatus.rawMode || ''),
         });
         if (this.getSettings().notifyOnAlarm) {
           await this.sendPushNotification(message);
@@ -309,16 +403,16 @@ class WoonveiligLocalApp extends Homey.App {
         }
         await this.triggerAlarmFlow(this.alarmTriggeredTrigger, {
           message,
-          status: status.state,
-          raw_mode: String(status.rawMode || ''),
+          status: effectiveStatus.state,
+          raw_mode: String(effectiveStatus.rawMode || ''),
         });
       }
       this.startAlarmNotificationLoop();
     } else {
       if (changed && previousStatus === 'triggered') {
-        await this.addHistory('alarm_resolved', `Alarm niet meer actief: ${statusLabel(status.state)}`, {
-          status: status.state,
-          rawMode: String(status.rawMode || ''),
+        await this.addHistory('alarm_resolved', `Alarm niet meer actief: ${statusLabel(effectiveStatus.state)}`, {
+          status: effectiveStatus.state,
+          rawMode: String(effectiveStatus.rawMode || ''),
         });
       }
       this.alarmNotificationAcknowledged = false;
