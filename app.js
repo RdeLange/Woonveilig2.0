@@ -48,6 +48,9 @@ class WoonveiligLocalApp extends Homey.App {
     this.accessoriesLoadedOnce = false;
     this.push = new HomeyPush(this);
 
+    // Persistent storage for seen accessory IDs (survives app restarts)
+    this.seenAccessoryIds = new Set(parseJsonArray(this.homey.settings.get('seen_accessory_ids') || '[]'));
+
     // Optimistic UI: track pending mode changes to avoid flickering
     this.pendingModeChange = {
       previousStatus: null,
@@ -427,8 +430,10 @@ class WoonveiligLocalApp extends Homey.App {
     for (const accessory of accessories) {
       const previous = this.accessoryById.get(accessory.id);
       const changed = previous && fingerprint(previous) !== fingerprint(accessory);
-      if (this.accessoriesLoadedOnce && !previous) {
+      // Check if this is truly a new accessory (not seen before, even across app restarts)
+      if (!this.seenAccessoryIds.has(accessory.id)) {
         newAccessories.push(accessory);
+        this.seenAccessoryIds.add(accessory.id);
       }
       this.accessoryById.set(accessory.id, accessory);
 
@@ -482,6 +487,8 @@ class WoonveiligLocalApp extends Homey.App {
     await this.saveAccessoriesOverview(accessories);
     await this.syncAlarmAccessoryWarnings();
     await this.notifyNewAccessories(newAccessories);
+    // Persist seen accessory IDs to survive app restarts
+    await this.homey.settings.set('seen_accessory_ids', JSON.stringify(Array.from(this.seenAccessoryIds)));
     this.accessoriesLoadedOnce = true;
   }
 
